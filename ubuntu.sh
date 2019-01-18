@@ -1,4 +1,22 @@
 #!/bin/bash
+#### for ubuntu 18.04 ####
+
+cat <<EOF >/etc/apt/sources.list
+deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
+# deb http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
+# deb-src http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
+# deb http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
+# deb-src http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
+# deb http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse
+# deb-src http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse
+# deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+# deb-src http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+EOF
+
+sed -i "s/1/0/g" /etc/apt/apt.conf.d/10periodic
+
+apt update && apt install -y wget
 
 # ssh
 apt install -y openssh-server
