@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#ubuntu
 # ssh
 apt install -y openssh-server
 sed -i "s/#Port 22/Port 31011/g" /etc/ssh/sshd_config
