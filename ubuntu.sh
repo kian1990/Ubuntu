@@ -79,14 +79,14 @@ EOF
 systemctl enable --now mysqld
 cat /opt/mysql/log/localhost.localdomain.err |grep password
 mysql -uroot -p
-### 修改默认密码
+## 修改默认密码
 mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY 'yourpassword';
 mysql> use mysql;
-### 允许外部访问
+## 允许外部访问
 mysql> update user set host = '%' where user = 'root';
 mysql> FLUSH PRIVILEGES;
 
-### 配置MySQL环境变量
+## 配置MySQL环境变量
 cat <<EOF >/etc/profile.d/mysql.sh
 export MYSQL_HOME=/opt/mysql
 export PATH=$PATH:$MYSQL_HOME/bin
@@ -210,12 +210,12 @@ tar zxvf apache-tomcat-8.5.99.tar.gz
 mv apache-tomcat-8.5.99 /opt/tomcat
 rm -rf /opt/tomcat/webapps/*
 mkdir /opt/tomcat/apps
-### 官网下载JRE1.8
+## 官网下载JRE1.8
 https://www.java.com/en/download/manual.jsp jre-8u401-linux-x64.tar.gz
 tar zxvf jre-8u401-linux-x64.tar.gz
 mv jre1.8.0_401 /opt/jre
 
-### 配置JAVA环境变量
+## 配置JAVA环境变量
 cat <<EOF >/etc/profile.d/java.sh
 export JAVA_HOME=/opt/jre
 export CLASSPATH=.:$JAVA_HOME/lib
@@ -293,52 +293,88 @@ systemctl enable --now privoxy
 
 
 # 安装Shadowsocks
-apt install -y shadowsocks
+wget https://github.com/shadowsocks/shadowsocks-rust/releases/download/v1.18.1/shadowsocks-v1.18.1.x86_64-unknown-linux-musl.tar.xz
+tar Jxvf shadowsocks-v1.18.1.x86_64-unknown-linux-musl.tar.xz -C /usr/local/bin
 
-cat <<EOF >/etc/shadowsocks/server.json
+## 服务端
+cat <<EOF >/usr/local/etc/ssserver.json
 {
- "server":"0.0.0.0",
- "server_port":38388,
- "password":"123456",
- "timeout":600,
- "method":"aes-256-cfb"
+  "server":"::",
+  "server_port":31000,
+  "password":"Xjj91oCesEfu2qwbNcMx6ELOoXV3qzYnYKFspgu5CIQ=",
+  "timeout":60,
+  "method":"2022-blake3-chacha20-poly1305",
+  "mode":"tcp_and_udp",
+  "fast_open":false,
+  "ipv6_only": false,
+  "ipv6_first": true
 }
 EOF
 
-ssserver -c /etc/shadowsocks/server.json -d start
+cat <<EOF >/usr/lib/systemd/system/ssserver.service
+[Unit]
+Description=Shadowsocks-rust Default Server Service
+Documentation=https://github.com/shadowsocks/shadowsocks-rust
+After=network.target
 
-cat <<EOF >/etc/shadowsocks/local.json
+[Service]
+Type=simple
+User=root
+Group=root
+LimitNOFILE=32768
+ExecStart=/usr/local/bin/ssserver -c /usr/local/etc/ssserver.json
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl enable --now ssserver
+
+cat <<EOF >/usr/local/etc/sslocal.json
 {
- "server":"server_ip",
- "server_port":server_port,
- "local_address": "127.0.0.1",
- "local_port":1080,
- "password":"server_password",
- "timeout":600,
- "method":"aes-256-cfb"
+  "server":"your_ip",
+  "server_port":31000,
+  "password":"Xjj91oCesEfu2qwbNcMx6ELOoXV3qzYnYKFspgu5CIQ=",
+  "timeout":60,
+  "method":"2022-blake3-chacha20-poly1305",
+  "mode":"tcp_and_udp",
+  "fast_open":false,
+  "local_address":"0.0.0.0",
+  "local_port":1080
 }
 EOF
 
-sslocal -c /etc/shadowsocks/local.json -d start
+## 客户端
+cat <<EOF >/usr/lib/systemd/system/sslocal.service
+[Unit]
+Description=Shadowsocks-rust Default Server Service
+Documentation=https://github.com/shadowsocks/shadowsocks-rust
+After=network.target
 
+[Service]
+Type=simple
+User=root
+Group=root
+LimitNOFILE=32768
+ExecStart=/usr/local/bin/sslocal -c /usr/local/etc/sslocal.json
 
-# 安装Supervisor
-apt install -y supervisor
-
-cat <<EOF >/etc/supervisor/conf.d/shadowsocks.conf
-[program:ssserver]
-command=ssserver -c /etc/shadowsocks/server.json
-redirect_stderr=true
-stdout_logfile=/var/log/supervisor/ssserver.log
-stdout_logfile_maxbytes=1MB
-stdout_logfile_backups=5
-
-[program:sslocal]
-command=sslocal -c /etc/shadowsocks/local.json
-redirect_stderr=true
-stdout_logfile=/var/log/supervisor/sslocal.log
-stdout_logfile_maxbytes=1MB
-stdout_logfile_backups=5
+[Install]
+WantedBy=multi-user.target
 EOF
 
-systemctl enable --now supervisor
+systemctl enable --now sslocal
+
+cat <<EOF >proxy.sh
+export http_proxy=http://localhost:1080
+export https_proxy=http://localhost:1080
+EOF
+
+cat <<EOF >unproxy.sh
+unset http_proxy
+unset https_proxy
+EOF
+
+## 启用代理
+source proxy.sh
+## 禁用代理
+source unproxy.sh
