@@ -226,12 +226,16 @@ source /etc/profile.d/java.sh
 
 
 # 安装Redis
+sudo apt install -y lsb-release curl gpg
+curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+apt update
 apt install -y redis
 sed -i "s/bind 127.0.0.1/# bind 127.0.0.1/g" /etc/redis/redis.conf
 sed -i "s/6379/31013/g" /etc/redis/redis.conf
 sed -i "s/# requirepass foobared/requirepass 123456/g" /etc/redis/redis.conf
 sed -i "s/notify-keyspace-events \"\"/notify-keyspace-events Ex/g" /etc/redis/redis.conf
-systemctl enable --now redis
+systemctl enable --now redis-server
 
 
 # 安装Squid
