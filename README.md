@@ -390,3 +390,44 @@ source proxy.sh
 ## 禁用代理
 source unproxy.sh
 ```
+
+# 安装Gitlab
+```bash
+apt install -y curl openssh-server ca-certificates postfix
+curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash
+apt install -y gitlab-ce
+gitlab-ctl reconfigure
+systemctl enable --now gitlab-runsvdir
+## 修改Gitlab登录用户root的密码，最少8位密码
+gitlab-rails console
+user = User.where(id: 1).first
+user.password = 'password'
+user.password_confirmation = 'password'
+user.save!
+exit
+```
+
+## 查看使用的端口
+```bash
+netstat -tunlp
+tcp        0      0 127.0.0.1:9229          0.0.0.0:*               LISTEN      2304/gitlab-workhor 
+tcp        0      0 127.0.0.1:9236          0.0.0.0:*               LISTEN      2295/gitaly          
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      2317/nginx: master  
+tcp        0      0 127.0.0.1:9121          0.0.0.0:*               LISTEN      2347/redis_exporter 
+tcp        0      0 127.0.0.1:9090          0.0.0.0:*               LISTEN      2357/prometheus     
+tcp        0      0 127.0.0.1:9093          0.0.0.0:*               LISTEN      2372/alertmanager   
+tcp        0      0 127.0.0.1:9100          0.0.0.0:*               LISTEN      2335/node_exporter  
+tcp        0      0 127.0.0.1:9187          0.0.0.0:*               LISTEN      2382/postgres_expor 
+tcp        0      0 127.0.0.1:9168          0.0.0.0:*               LISTEN      2342/ruby           
+tcp        0      0 127.0.0.1:8080          0.0.0.0:*               LISTEN      1884/puma 6.4.0 (un 
+tcp        0      0 127.0.0.1:8082          0.0.0.0:*               LISTEN      1915/sidekiq_export 
+tcp        0      0 127.0.0.1:8092          0.0.0.0:*               LISTEN      1913/sidekiq 7.1.6  
+tcp        0      0 127.0.0.1:8150          0.0.0.0:*               LISTEN      1818/gitlab-kas     
+tcp        0      0 127.0.0.1:8151          0.0.0.0:*               LISTEN      1818/gitlab-kas     
+tcp        0      0 127.0.0.1:8153          0.0.0.0:*               LISTEN      1818/gitlab-kas     
+tcp        0      0 127.0.0.1:8154          0.0.0.0:*               LISTEN      1818/gitlab-kas     
+tcp        0      0 127.0.0.1:8155          0.0.0.0:*               LISTEN      1818/gitlab-kas     
+tcp        0      0 0.0.0.0:8060            0.0.0.0:*               LISTEN      2317/nginx: master  
+tcp6       0      0 :::9094                 :::*                    LISTEN      2372/alertmanager   
+udp6       0      0 :::9094                 :::*                                2372/alertmanager
+```
