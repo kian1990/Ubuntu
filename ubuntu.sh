@@ -1,44 +1,113 @@
 #!/bin/bash
-#### for ubuntu 18.04 ####
+#### for ubuntu 22.04 ####
 
+
+# 配置APT源
 cat <<EOF >/etc/apt/sources.list
-deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
-deb-src http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
-# deb http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
-# deb-src http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
-# deb http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
-# deb-src http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
-# deb http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse
-# deb-src http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse
-# deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
-# deb-src http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+deb https://mirrors.ustc.edu.cn/ubuntu/ jammy main restricted
+deb https://mirrors.ustc.edu.cn/ubuntu/ jammy-updates main restricted
+deb https://mirrors.ustc.edu.cn/ubuntu/ jammy universe
+deb https://mirrors.ustc.edu.cn/ubuntu/ jammy-updates universe
+deb https://mirrors.ustc.edu.cn/ubuntu/ jammy multiverse
+deb https://mirrors.ustc.edu.cn/ubuntu/ jammy-updates multiverse
+deb https://mirrors.ustc.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse
+deb http://security.ubuntu.com/ubuntu/ jammy-security main restricted
+deb http://security.ubuntu.com/ubuntu/ jammy-security universe
+deb http://security.ubuntu.com/ubuntu/ jammy-security multiverse
 EOF
-
-sed -i "s/1/0/g" /etc/apt/apt.conf.d/10periodic
 
 apt update && apt install -y wget
 
-# ssh
+
+# 安装SSH
 apt install -y openssh-server
-sed -i "s/#Port 22/Port 31011/g" /etc/ssh/sshd_config
+sed -i "s/#Port 22/Port 30022/g" /etc/ssh/sshd_config
 sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin yes/g" /etc/ssh/sshd_config
 sed -i "s/#PasswordAuthentication yes/PasswordAuthentication yes/g" /etc/ssh/sshd_config
-systemctl restart ssh && systemctl enable ssh
+systemctl enable --now ssh
 
-# mysql
+
+# 安装MySQL
+
+## APT安装
 apt install -y mysql-server-5.7
-sed -i "s/3306/31012/g" /etc/mysql/mysql.conf.d/mysqld.cnf
+sed -i "s/3306/33306/g" /etc/mysql/mysql.conf.d/mysqld.cnf
 sed -i "s/127.0.0.1/0.0.0.0/g" /etc/mysql/mysql.conf.d/mysqld.cnf
-systemctl restart mysql && systemctl enable mysql
+systemctl enable --now mysql
+cat /etc/mysql/debian.cnf|grep password
+mysql -udebian-sys-maint -p
+mysql> update mysql.user set authentication_string=password('root') where user='root'and Host = 'localhost';
+mysql> update mysql.user set plugin="mysql_native_password";
+mysql> GRANT ALL PRIVILEGES ON *.* TO mysql@'%' IDENTIFIED BY 'mysql';
 
-# cat /etc/mysql/debian.cnf|grep password
-# mysql -udebian-sys-maint -p
-# mysql> update mysql.user set authentication_string=password('root') where user='root'and Host = 'localhost';
-# mysql> update mysql.user set plugin="mysql_native_password";
-# mysql> GRANT ALL PRIVILEGES ON *.* TO mysql@'%' IDENTIFIED BY 'mysql';
+## 官方安装
+apt install libncurses5
+wget https://downloads.mysql.com/archives/get/p/23/file/mysql-5.7.44-linux-glibc2.12-x86_64.tar.gz
+tar zxvf mysql-5.7.44-linux-glibc2.12-x86_64.tar.gz
+mv mysql-5.7.44-linux-glibc2.12-x86_64 /opt/mysql
+mkdir /opt/mysql/{data,mysql-files,etc,log}
+
+cat <<EOF >/opt/mysql/etc/my.cnf
+[mysqld]
+datadir=/opt/mysql/data
+socket=/tmp/mysql.sock
+port=33306
+log-error=/opt/mysql/log/localhost.localdomain.err
+user=root
+secure_file_priv=/opt/mysql/mysql-files
+EOF
+
+cat <<EOF >/usr/lib/systemd/system/mysqld.service
+[Unit]
+Description=MySQL Server
+Documentation=man:mysqld(7)
+Documentation=http://dev.mysql.com/doc/refman/en/using-systemd.html
+After=network.target
+After=syslog.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+User=root
+Group=root
+Type=forking
+PIDFile=/opt/mysql/mysqld.pid
+
+# Disable service start and stop timeout logic of systemd for mysqld service.
+TimeoutSec=0
+
+# Start main service
+ExecStart=/opt/mysql/bin/mysqld --defaults-file=/opt/mysql/etc/my.cnf --daemonize --pid-file=/opt/mysql/mysqld.pid
+
+# Sets open_files_limit
+LimitNOFILE = 5000
+Restart=on-failure
+RestartPreventExitStatus=1
+PrivateTmp=false
+EOF
+
+/opt/mysql/bin/mysqld --defaults-file=/opt/mysql/etc/my.cnf --initialize
+systemctl enable --now mysqld
+cat /opt/mysql/log/localhost.localdomain.err |grep password
+mysql -uroot -p
+### 修改默认密码
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY 'yourpassword';
+mysql> use mysql;
+### 允许外部访问
+mysql> update user set host = '%' where user = 'root';
+mysql> FLUSH PRIVILEGES;
+
+### 配置MySQL环境变量
+cat <<EOF >/etc/profile.d/mysql.sh
+export MYSQL_HOME=/opt/mysql
+export PATH=$PATH:$MYSQL_HOME/bin
+EOF
+
+source /etc/profile.d/mysql.sh
 
 
-# rabbitmq
+# 安装Rabbitmq
 apt install -y rabbitmq-server
 
 cat <<EOF >/etc/rabbitmq/rabbitmq.config
@@ -58,10 +127,10 @@ cat <<EOF >/etc/rabbitmq/rabbitmq.config
 EOF
 
 rabbitmq-plugins enable rabbitmq_management
-systemctl restart rabbitmq-server && systemctl enable rabbitmq-server
+systemctl enable --now rabbitmq-server
 
 
-# nginx
+# 安装Nginx
 apt install -y nginx
 rm -rf /etc/nginx/sites-enabled/*
 
@@ -111,39 +180,40 @@ server {
 }
 EOF
 
-systemctl restart nginx && systemctl enable nginx
+systemctl enable --now nginx
 
-# tomcat
-wget http://www.monsterk.cn/file/apache-tomcat-8.5.37.tar.gz
-tar zxvf apache-tomcat-8.5.37.tar.gz
-mv apache-tomcat-8.5.37 /opt/tomcat
+
+# 安装Tomcat
+wget https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.99/bin/apache-tomcat-8.5.99.tar.gz
+tar zxvf apache-tomcat-8.5.99.tar.gz
+mv apache-tomcat-8.5.99 /opt/tomcat
 rm -rf /opt/tomcat/webapps/*
 mkdir /opt/tomcat/apps
+### 官网下载JRE1.8
+https://www.java.com/en/download/manual.jsp jre-8u401-linux-x64.tar.gz
+tar zxvf jre-8u401-linux-x64.tar.gz
+mv jre1.8.0_401 /opt/jre
 
-wget http://www.monsterk.cn/file/jre-8u191-linux-x64.tar.gz
-tar zxvf jre-8u191-linux-x64.tar.gz
-mv jre1.8.0_191 /usr/local/jre
-
-cat <<EOF >/etc/profile.d/jre.sh
-export JRE_HOME=/usr/local/jre
-export CLASSPATH=.:$JRE_HOME/lib
-export PATH=$PATH:$JRE_HOME/bin
+### 配置JAVA环境变量
+cat <<EOF >/etc/profile.d/java.sh
+export JAVA_HOME=/opt/jre
+export CLASSPATH=.:$JAVA_HOME/lib
+export PATH=$PATH:$JAVA_HOME/bin
 EOF
 
-source /etc/profile.d/jre.sh
+source /etc/profile.d/java.sh
 
 
-# redis
+# 安装Redis
 apt install -y redis
 sed -i "s/bind 127.0.0.1/# bind 127.0.0.1/g" /etc/redis/redis.conf
 sed -i "s/6379/31013/g" /etc/redis/redis.conf
 sed -i "s/# requirepass foobared/requirepass 123456/g" /etc/redis/redis.conf
 sed -i "s/notify-keyspace-events \"\"/notify-keyspace-events Ex/g" /etc/redis/redis.conf
+systemctl enable --now redis
 
-systemctl restart redis && systemctl enable redis
 
-
-# squid
+# 安装Squid
 apt install -y squid
 
 cat <<EOF >/etc/squid/squid.conf
@@ -158,10 +228,10 @@ http_access allow localnet
 http_access deny all
 EOF
 
-systemctl restart squid && systemctl enable squid
+systemctl enable --now squid
 
 
-# privoxy
+# 安装Privoxy
 apt install -y privoxy
 
 cat <<EOF >/etc/privoxy/config
@@ -194,10 +264,10 @@ listen-address 0.0.0.0:8118
 #forward-socks5t / 127.0.0.1:1080 .
 EOF
 
-systemctl restart privoxy && systemctl enable privoxy
+systemctl enable --now privoxy
 
 
-# shadowsocks
+# 安装Shadowsocks
 apt install -y shadowsocks
 
 cat <<EOF >/etc/shadowsocks/server.json
@@ -227,7 +297,7 @@ EOF
 sslocal -c /etc/shadowsocks/local.json -d start
 
 
-# supervisor
+# 安装Supervisor
 apt install -y supervisor
 
 cat <<EOF >/etc/supervisor/conf.d/shadowsocks.conf
@@ -246,4 +316,4 @@ stdout_logfile_maxbytes=1MB
 stdout_logfile_backups=5
 EOF
 
-systemctl restart supervisor && systemctl enable supervisor
+systemctl enable --now supervisor
