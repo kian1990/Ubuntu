@@ -2,6 +2,7 @@
 
 
 # 配置APT源
+```bash
 cat <<EOF >/etc/apt/sources.list
 deb https://mirrors.ustc.edu.cn/ubuntu/ jammy main restricted
 deb https://mirrors.ustc.edu.cn/ubuntu/ jammy-updates main restricted
@@ -16,18 +17,20 @@ deb http://security.ubuntu.com/ubuntu/ jammy-security multiverse
 EOF
 
 apt update && apt install -y wget
-
+```
 
 # 安装SSH
+```bash
 apt install -y openssh-server
 sed -i "s/#Port 22/Port 30022/g" /etc/ssh/sshd_config
 sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin yes/g" /etc/ssh/sshd_config
 sed -i "s/#PasswordAuthentication yes/PasswordAuthentication yes/g" /etc/ssh/sshd_config
 systemctl enable --now ssh
-
+```
 
 # 安装MySQL
 ## https://dev.mysql.com/doc/mysql-secure-deployment-guide/5.7/en/secure-deployment-post-install.html
+```bash
 apt install libncurses5
 wget https://downloads.mysql.com/archives/get/p/23/file/mysql-5.7.44-linux-glibc2.12-x86_64.tar.gz
 tar zxvf mysql-5.7.44-linux-glibc2.12-x86_64.tar.gz
@@ -92,10 +95,11 @@ export PATH=$PATH:$MYSQL_HOME/bin
 EOF
 
 source /etc/profile.d/mysql.sh
-
+```
 
 # 安装Rabbitmq
 ## https://www.rabbitmq.com/docs/install-debian
+```bash
 apt install -y curl gnupg apt-transport-https
 curl -1sLf "https://keys.openpgp.org/vks/v1/by-fingerprint/0A9AF2115F4687BD29803A206B73A36E6026DFCA" | gpg --dearmor | tee /usr/share/keyrings/com.rabbitmq.team.gpg > /dev/null
 
@@ -145,10 +149,11 @@ EOF
 
 rabbitmq-plugins enable rabbitmq_management
 systemctl enable --now rabbitmq-server
-
+```
 
 # 安装Nginx
 ## https://nginx.org/en/linux_packages.html
+```bash
 apt install curl gnupg2 ca-certificates lsb-release ubuntu-keyring
 curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor | tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
 echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" | tee /etc/apt/sources.list.d/nginx.list
@@ -202,9 +207,10 @@ server {
 EOF
 
 systemctl enable --now nginx
-
+```
 
 # 安装Tomcat
+```bash
 wget https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.99/bin/apache-tomcat-8.5.99.tar.gz
 tar zxvf apache-tomcat-8.5.99.tar.gz
 mv apache-tomcat-8.5.99 /opt/tomcat
@@ -223,10 +229,11 @@ export PATH=$PATH:$JAVA_HOME/bin
 EOF
 
 source /etc/profile.d/java.sh
-
+```
 
 # 安装Redis
 ## https://redis.io/docs/install/install-redis/install-redis-on-linux
+```bash
 sudo apt install -y lsb-release curl gpg
 curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
@@ -237,9 +244,10 @@ sed -i "s/6379/31013/g" /etc/redis/redis.conf
 sed -i "s/# requirepass foobared/requirepass 123456/g" /etc/redis/redis.conf
 sed -i "s/notify-keyspace-events \"\"/notify-keyspace-events Ex/g" /etc/redis/redis.conf
 systemctl enable --now redis-server
-
+```
 
 # 安装Squid
+```bash
 apt install -y squid
 
 cat <<EOF >/etc/squid/squid.conf
@@ -255,9 +263,10 @@ http_access deny all
 EOF
 
 systemctl enable --now squid
-
+```
 
 # 安装Privoxy
+```bash
 apt install -y privoxy
 
 cat <<EOF >/etc/privoxy/config
@@ -291,9 +300,10 @@ listen-address 0.0.0.0:8118
 EOF
 
 systemctl enable --now privoxy
-
+```
 
 # 安装Shadowsocks-rust
+```bash
 wget https://github.com/shadowsocks/shadowsocks-rust/releases/download/v1.18.1/shadowsocks-v1.18.1.x86_64-unknown-linux-musl.tar.xz
 tar Jxvf shadowsocks-v1.18.1.x86_64-unknown-linux-musl.tar.xz -C /usr/local/bin
 
@@ -379,3 +389,4 @@ EOF
 source proxy.sh
 ## 禁用代理
 source unproxy.sh
+```
