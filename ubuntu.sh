@@ -96,6 +96,7 @@ source /etc/profile.d/mysql.sh
 
 
 # 安装Rabbitmq
+## https://www.rabbitmq.com/docs/install-debian
 apt install -y curl gnupg apt-transport-https
 curl -1sLf "https://keys.openpgp.org/vks/v1/by-fingerprint/0A9AF2115F4687BD29803A206B73A36E6026DFCA" | gpg --dearmor | tee /usr/share/keyrings/com.rabbitmq.team.gpg > /dev/null
 
@@ -226,6 +227,7 @@ source /etc/profile.d/java.sh
 
 
 # 安装Redis
+## https://redis.io/docs/install/install-redis/install-redis-on-linux
 sudo apt install -y lsb-release curl gpg
 curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
@@ -292,7 +294,7 @@ EOF
 systemctl enable --now privoxy
 
 
-# 安装Shadowsocks
+# 安装Shadowsocks-rust
 wget https://github.com/shadowsocks/shadowsocks-rust/releases/download/v1.18.1/shadowsocks-v1.18.1.x86_64-unknown-linux-musl.tar.xz
 tar Jxvf shadowsocks-v1.18.1.x86_64-unknown-linux-musl.tar.xz -C /usr/local/bin
 
