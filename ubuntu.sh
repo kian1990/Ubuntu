@@ -29,18 +29,7 @@ systemctl enable --now ssh
 
 # 安装MySQL
 
-## APT安装
-apt install -y mysql-server-5.7
-sed -i "s/3306/33306/g" /etc/mysql/mysql.conf.d/mysqld.cnf
-sed -i "s/127.0.0.1/0.0.0.0/g" /etc/mysql/mysql.conf.d/mysqld.cnf
-systemctl enable --now mysql
-cat /etc/mysql/debian.cnf|grep password
-mysql -udebian-sys-maint -p
-mysql> update mysql.user set authentication_string=password('root') where user='root'and Host = 'localhost';
-mysql> update mysql.user set plugin="mysql_native_password";
-mysql> GRANT ALL PRIVILEGES ON *.* TO mysql@'%' IDENTIFIED BY 'mysql';
-
-## 官方安装
+## https://dev.mysql.com/doc/mysql-secure-deployment-guide/5.7/en/secure-deployment-post-install.html
 apt install libncurses5
 wget https://downloads.mysql.com/archives/get/p/23/file/mysql-5.7.44-linux-glibc2.12-x86_64.tar.gz
 tar zxvf mysql-5.7.44-linux-glibc2.12-x86_64.tar.gz
@@ -108,7 +97,36 @@ source /etc/profile.d/mysql.sh
 
 
 # 安装Rabbitmq
-apt install -y rabbitmq-server
+apt install -y curl gnupg apt-transport-https
+curl -1sLf "https://keys.openpgp.org/vks/v1/by-fingerprint/0A9AF2115F4687BD29803A206B73A36E6026DFCA" | gpg --dearmor | tee /usr/share/keyrings/com.rabbitmq.team.gpg > /dev/null
+
+sudo tee /etc/apt/sources.list.d/rabbitmq.list <<EOF
+## Provides modern Erlang/OTP releases
+##
+deb [signed-by=/usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg] https://ppa1.novemberain.com/rabbitmq/rabbitmq-erlang/deb/ubuntu jammy main
+deb-src [signed-by=/usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg] https://ppa1.novemberain.com/rabbitmq/rabbitmq-erlang/deb/ubuntu jammy main
+
+# another mirror for redundancy
+deb [signed-by=/usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg] https://ppa2.novemberain.com/rabbitmq/rabbitmq-erlang/deb/ubuntu jammy main
+deb-src [signed-by=/usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg] https://ppa2.novemberain.com/rabbitmq/rabbitmq-erlang/deb/ubuntu jammy main
+
+## Provides RabbitMQ
+##
+deb [signed-by=/usr/share/keyrings/rabbitmq.9F4587F226208342.gpg] https://ppa1.novemberain.com/rabbitmq/rabbitmq-server/deb/ubuntu jammy main
+deb-src [signed-by=/usr/share/keyrings/rabbitmq.9F4587F226208342.gpg] https://ppa1.novemberain.com/rabbitmq/rabbitmq-server/deb/ubuntu jammy main
+
+# another mirror for redundancy
+deb [signed-by=/usr/share/keyrings/rabbitmq.9F4587F226208342.gpg] https://ppa2.novemberain.com/rabbitmq/rabbitmq-server/deb/ubuntu jammy main
+deb-src [signed-by=/usr/share/keyrings/rabbitmq.9F4587F226208342.gpg] https://ppa2.novemberain.com/rabbitmq/rabbitmq-server/deb/ubuntu jammy main
+EOF
+
+apt update
+apt install -y erlang-base \
+erlang-asn1 erlang-crypto erlang-eldap erlang-ftp erlang-inets \
+erlang-mnesia erlang-os-mon erlang-parsetools erlang-public-key \
+erlang-runtime-tools erlang-snmp erlang-ssl \
+erlang-syntax-tools erlang-tftp erlang-tools erlang-xmerl
+apt install -y rabbitmq-server --fix-missing
 
 cat <<EOF >/etc/rabbitmq/rabbitmq.config
 [
@@ -131,10 +149,14 @@ systemctl enable --now rabbitmq-server
 
 
 # 安装Nginx
+## https://nginx.org/en/linux_packages.html
+apt install curl gnupg2 ca-certificates lsb-release ubuntu-keyring
+curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor | tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
+echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" | tee /etc/apt/sources.list.d/nginx.list
+apt update
 apt install -y nginx
-rm -rf /etc/nginx/sites-enabled/*
 
-cat <<EOF >/etc/nginx/conf.d/web.conf
+cat <<EOF >/etc/nginx/conf.d/defaults.conf
 upstream your_front {
   server 127.0.0.1:38080;
 }
