@@ -28,7 +28,6 @@ systemctl enable --now ssh
 
 
 # 安装MySQL
-
 ## https://dev.mysql.com/doc/mysql-secure-deployment-guide/5.7/en/secure-deployment-post-install.html
 apt install libncurses5
 wget https://downloads.mysql.com/archives/get/p/23/file/mysql-5.7.44-linux-glibc2.12-x86_64.tar.gz
