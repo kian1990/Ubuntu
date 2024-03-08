@@ -556,6 +556,9 @@ user.password = 'password'
 user.password_confirmation = 'password'
 user.save!
 exit
+## 修改域名
+vim /etc/gitlab/gitlab.rb
+vim /opt/gitlab/embedded/service/gitlab-rails/config/gitlab.yml
 ```
 
 ## 查看使用的端口
