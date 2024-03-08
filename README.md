@@ -290,6 +290,46 @@ EOF
 systemctl enable --now nginx
 ```
 
+# 安装PHP8.3
+## https://php.watch/
+## https://docs.phpmyadmin.net/zh-cn/latest/setup.html
+```bash
+add-apt-repository ppa:ondrej/php
+apt install -y php8.3-fpm
+systemctl enable --now php8.3-fpm
+mkdir /opt/www
+
+cat <<EOF >/opt/www/phpinfo.php
+<?php
+phpinfo();
+?>
+EOF
+
+## nginx 配置
+server {
+  listen 80;
+  server_name localhost;
+  root /opt/www;
+  access_log /var/log/nginx/defaults.log;
+  location / {
+    autoindex on;
+    autoindex_exact_size on;
+    autoindex_localtime on;
+  }
+  location ~ \.php$ {
+    include snippets/fastcgi-php.conf;
+    fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+  }
+}
+
+## 配置phpMyAdmin
+wget https://files.phpmyadmin.net/phpMyAdmin/5.2.1/phpMyAdmin-5.2.1-all-languages.zip
+unzip phpMyAdmin-5.2.1-all-languages.zip
+mv phpMyAdmin-5.2.1-all-languages /opt/www/phpMyAdmin
+apt install -y php8.3-mysql php8.3-bz2 php8.3-zip php8.3-mbstring
+## 注意不能使用localhost，要使用127.0.0.1
+```
+
 # 安装Tomcat
 ## https://www.oracle.com/cn/java/technologies/downloads/archive/
 ## https://tomcat.apache.org/
