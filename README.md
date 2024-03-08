@@ -28,7 +28,7 @@ sed -i "s/#PasswordAuthentication yes/PasswordAuthentication yes/g" /etc/ssh/ssh
 systemctl enable --now ssh
 ```
 
-# 安装MySQL
+# 安装MySQL5.7
 ## https://dev.mysql.com/doc/mysql-secure-deployment-guide/5.7/en/secure-deployment-post-install.html
 ```bash
 apt install libncurses5
@@ -45,6 +45,7 @@ port=33306
 log-error=/opt/mysql/log/localhost.localdomain.err
 user=root
 secure_file_priv=/opt/mysql/mysql-files
+bind-address=0.0.0.0
 EOF
 
 cat <<EOF >/usr/lib/systemd/system/mysqld.service
@@ -68,12 +69,92 @@ PIDFile=/opt/mysql/mysqld.pid
 TimeoutSec=0
 
 # Start main service
-ExecStart=/opt/mysql/bin/mysqld --defaults-file=/opt/mysql/etc/my.cnf --daemonize --pid-file=/opt/mysql/mysqld.pid
+ExecStart=/opt/mysql/bin/mysqld --defaults-file=/opt/mysql/etc/my.cnf --daemonize --pid-file=/opt/mysql/mysqld.pid $MYSQLD_OPTS
+
+# Use this to switch malloc implementation
+EnvironmentFile=-/etc/sysconfig/mysql
 
 # Sets open_files_limit
 LimitNOFILE = 5000
 Restart=on-failure
 RestartPreventExitStatus=1
+PrivateTmp=false
+EOF
+
+/opt/mysql/bin/mysqld --defaults-file=/opt/mysql/etc/my.cnf --initialize
+systemctl enable --now mysqld
+cat /opt/mysql/log/localhost.localdomain.err |grep password
+mysql -uroot -p
+## 修改默认密码
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY 'yourpassword';
+mysql> use mysql;
+## 允许外部访问
+mysql> update user set host = '%' where user = 'root';
+mysql> FLUSH PRIVILEGES;
+
+## 配置MySQL环境变量
+cat <<EOF >/etc/profile.d/mysql.sh
+export MYSQL_HOME=/opt/mysql
+export PATH=$PATH:$MYSQL_HOME/bin
+EOF
+
+source /etc/profile.d/mysql.sh
+```
+
+# 安装MySQL8.2
+## https://dev.mysql.com/doc/mysql-secure-deployment-guide/8.0/en/secure-deployment-post-install.html
+```bash
+apt install libncurses5
+wget https://downloads.mysql.com/archives/get/p/23/file/mysql-8.2.0-linux-glibc2.28-x86_64.tar.xz
+tar zxvf mysql-8.2.0-linux-glibc2.28-x86_64.tar.gz
+mv mysql-8.2.0-linux-glibc2.28-x86_64 /opt/mysql
+mkdir /opt/mysql/{data,mysql-files,etc,log}
+
+cat <<EOF >/opt/mysql/etc/my.cnf
+[mysqld]
+datadir=/opt/mysql/data
+socket=/tmp/mysql.sock
+port=33306
+log-error=/opt/mysql/log/localhost.localdomain.err
+user=root
+secure_file_priv=/opt/mysql/mysql-files
+bind-address=0.0.0.0
+EOF
+
+cat <<EOF >/usr/lib/systemd/system/mysqld.service
+[Unit]
+Description=MySQL Server
+Documentation=man:mysqld(8)
+Documentation=http://dev.mysql.com/doc/refman/en/using-systemd.html
+After=network.target
+After=syslog.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+User=root
+Group=root
+
+# Have mysqld write its state to the systemd notify socket
+Type=notify
+
+# Disable service start and stop timeout logic of systemd for mysqld service.
+TimeoutSec=0
+
+# Start main service
+ExecStart=/opt/mysql/bin/mysqld --defaults-file=/opt/mysql/etc/my.cnf $MYSQLD_OPTS 
+
+# Use this to switch malloc implementation
+EnvironmentFile=-/etc/sysconfig/mysql
+
+# Sets open_files_limit
+LimitNOFILE = 10000
+Restart=on-failure
+RestartPreventExitStatus=1
+
+# Set environment variable MYSQLD_PARENT_PID. This is required for restart.
+Environment=MYSQLD_PARENT_PID=1
 PrivateTmp=false
 EOF
 
@@ -229,6 +310,34 @@ export PATH=$PATH:$JAVA_HOME/bin
 EOF
 
 source /etc/profile.d/java.sh
+
+## 配置用户权限
+vim /opt/tomcat/conf/tomcat-users.xml
+## 添加下面字段
+  <role rolename="tomcat"/>
+  <role rolename="role1"/>
+  <role rolename="manager-script"/>
+  <role rolename="manager-gui"/>
+  <role rolename="manager-status"/>
+  <role rolename="admin-gui"/>
+  <role rolename="admin-script"/>
+  <user username="root" password="root" roles="manager-gui,manager-script,tomcat,admin-gui,admin-script"/>
+
+## 允许外部访问
+vim /opt/tomcat/webapps/manager/META-INF/context.xml
+## 注释下面这行，webapps下其他目录也需要修改
+<!--   <Valve className="org.apache.catalina.valves.RemoteAddrValve"
+         allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" /> -->
+
+## 配置根目录访问应用
+## Host标签添加一行
+      <Host name="localhost"  appBase="webapps"
+            unpackWARs="true" autoDeploy="true">
+        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+               prefix="localhost_access_log" suffix=".txt"
+               pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+            <Context docBase="/opt/tomcat/webapps/jenkins" path="/" reloadable="true"/>            
+      </Host>
 ```
 
 # 安装Redis
