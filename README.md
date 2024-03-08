@@ -291,6 +291,8 @@ systemctl enable --now nginx
 ```
 
 # 安装Tomcat
+## https://www.oracle.com/cn/java/technologies/downloads/archive/
+## https://tomcat.apache.org/
 ```bash
 wget https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.99/bin/apache-tomcat-8.5.99.tar.gz
 tar zxvf apache-tomcat-8.5.99.tar.gz
