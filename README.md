@@ -590,8 +590,11 @@ udp6       0      0 :::9094                 :::*                                
 ## https://prometheus.io/download/
 ```bash
 wget https://github.com/prometheus/prometheus/releases/download/v2.50.1/prometheus-2.50.1.linux-amd64.tar.gz
+wget https://github.com/prometheus/node_exporter/releases/download/v1.7.0/node_exporter-1.7.0.linux-amd64.tar.gz
 tar zxvf prometheus-2.50.1.linux-amd64.tar.gz
+tar zxvf node_exporter-1.7.0.linux-amd64.tar.gz
 mv prometheus-2.50.1.linux-amd64 /opt/prometheus
+mv node_exporter-1.7.0.linux-amd64 /opt/prometheus/node_exporter
 
 cat <<EOF >/usr/lib/systemd/system/prometheus.service
 [Unit]
@@ -609,5 +612,29 @@ WantedBy=multi-user.target
 sudo systemctl enable --now prometheus
 EOF
 
+cat <<EOF >/usr/lib/systemd/system/node_exporter.service
+[Unit]
+Description=Node Exporter
+After=network.target
+
+[Service]
+User=prometheus
+ExecStart=/opt/prometheus/node_exporter/node_exporter --web.listen-address=:39100
+
+[Install]
+WantedBy=default.target
+EOF
+
+vim /opt/prometheus/prometheus.yml
+# 添加监控
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['localhost:9100']
+
 systemctl enable --now prometheus
+systemctl enable --now node_exporter
+
 ```
