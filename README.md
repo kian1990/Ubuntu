@@ -585,3 +585,29 @@ tcp        0      0 0.0.0.0:8060            0.0.0.0:*               LISTEN      
 tcp6       0      0 :::9094                 :::*                    LISTEN      2372/alertmanager   
 udp6       0      0 :::9094                 :::*                                2372/alertmanager
 ```
+
+# 安装Prometheus
+## https://prometheus.io/download/
+```bash
+wget https://github.com/prometheus/prometheus/releases/download/v2.50.1/prometheus-2.50.1.linux-amd64.tar.gz
+tar zxvf prometheus-2.50.1.linux-amd64.tar.gz
+mv prometheus-2.50.1.linux-amd64 /opt/prometheus
+
+cat <<EOF >/usr/lib/systemd/system/prometheus.service
+[Unit]
+Description=Prometheus Server
+Documentation=https://prometheus.io/docs/introduction/overview/
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/opt/prometheus/prometheus --config.file=/opt/prometheus/prometheus.yml --web.listen-address=:39090
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+sudo systemctl enable --now prometheus
+EOF
+
+systemctl enable --now prometheus
+```
