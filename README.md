@@ -609,7 +609,6 @@ Restart=always
 
 [Install]
 WantedBy=multi-user.target
-sudo systemctl enable --now prometheus
 EOF
 
 cat <<EOF >/usr/lib/systemd/system/node_exporter.service
@@ -618,7 +617,7 @@ Description=Node Exporter
 After=network.target
 
 [Service]
-User=prometheus
+User=root
 ExecStart=/opt/prometheus/node_exporter/node_exporter --web.listen-address=:39100
 
 [Install]
