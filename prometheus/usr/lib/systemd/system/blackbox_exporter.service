@@ -1,0 +1,10 @@
+[Unit]
+Description=Blackbox Exporter
+After=network.target
+
+[Service]
+User=root
+ExecStart=/opt/prometheus/blackbox_exporter/blackbox_exporter --config.file=/opt/prometheus/blackbox_exporter/blackbox.yml --web.listen-address=:39115
+
+[Install]
+WantedBy=default.target

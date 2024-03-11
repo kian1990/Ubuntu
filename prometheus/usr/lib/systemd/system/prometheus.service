@@ -1,0 +1,12 @@
+[Unit]
+Description=Prometheus
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=root
+ExecStart=/opt/prometheus/prometheus --config.file=/opt/prometheus/prometheus.yml --web.listen-address=:39090
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=Graphite Exporter
+After=network.target
+
+[Service]
+User=root
+ExecStart=/opt/prometheus/graphite_exporter/graphite_exporter --graphite.listen-address=":39109" --web.listen-address=:39108
+
+[Install]
+WantedBy=default.target

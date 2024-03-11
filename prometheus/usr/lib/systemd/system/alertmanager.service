@@ -1,0 +1,10 @@
+[Unit]
+Description=Alertmanager
+After=network.target
+
+[Service]
+User=root
+ExecStart=/opt/prometheus/alertmanager/alertmanager --config.file=/opt/prometheus/alertmanager/alertmanager.yml --cluster.listen-address="0.0.0.0:39094" --web.listen-address=:39093
+
+[Install]
+WantedBy=default.target

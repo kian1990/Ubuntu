@@ -1,0 +1,10 @@
+[Unit]
+Description=Statsd Exporter
+After=network.target
+
+[Service]
+User=root
+ExecStart=/opt/prometheus/statsd_exporter/statsd_exporter --statsd.listen-udp=":39125" --statsd.listen-tcp=":39125" --web.listen-address=:39102
+
+[Install]
+WantedBy=default.target

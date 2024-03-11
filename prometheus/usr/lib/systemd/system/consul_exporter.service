@@ -1,0 +1,10 @@
+[Unit]
+Description=Consul Exporter
+After=network.target
+
+[Service]
+User=root
+ExecStart=/opt/prometheus/consul_exporter/consul_exporter --web.listen-address=:39107
+
+[Install]
+WantedBy=default.target
