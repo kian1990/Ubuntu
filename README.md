@@ -178,7 +178,7 @@ EOF
 source /etc/profile.d/mysql.sh
 ```
 
-# 安装Rabbitmq
+# 安装RabbitMQ
 ## https://www.rabbitmq.com/docs/install-debian
 ```bash
 apt install -y curl gnupg apt-transport-https
