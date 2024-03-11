@@ -558,7 +558,7 @@ user.save!
 exit
 ## 修改域名
 vim /etc/gitlab/gitlab.rb
-vim /opt/gitlab/embedded/service/gitlab-rails/config/gitlab.yml
+gitlab-ctl reconfigure
 ```
 
 ## 查看使用的端口
