@@ -589,12 +589,7 @@ udp6       0      0 :::9094                 :::*                                
 # 安装Prometheus
 ## https://prometheus.io/download/
 ```bash
-wget https://github.com/prometheus/prometheus/releases/download/v2.50.1/prometheus-2.50.1.linux-amd64.tar.gz
-wget https://github.com/prometheus/node_exporter/releases/download/v1.7.0/node_exporter-1.7.0.linux-amd64.tar.gz
-tar zxvf prometheus-2.50.1.linux-amd64.tar.gz
-tar zxvf node_exporter-1.7.0.linux-amd64.tar.gz
-mv prometheus-2.50.1.linux-amd64 /opt/prometheus
-mv node_exporter-1.7.0.linux-amd64 /opt/prometheus/node_exporter
+cd /opt/prometheus
 
 cat <<EOF >/usr/lib/systemd/system/prometheus.service
 [Unit]
@@ -611,6 +606,71 @@ Restart=always
 WantedBy=multi-user.target
 EOF
 
+cat <<EOF >/usr/lib/systemd/system/alertmanager.service
+[Unit]
+Description=Alertmanager
+After=network.target
+
+[Service]
+User=root
+ExecStart=/opt/prometheus/alertmanager/alertmanager --config.file=/opt/prometheus/alertmanager/alertmanager.yml --cluster.listen-address="0.0.0.0:39094" --web.listen-address=:39093
+
+[Install]
+WantedBy=default.target
+EOF
+
+cat <<EOF >/usr/lib/systemd/system/blackbox_exporter.service
+[Unit]
+Description=Blackbox Exporter
+After=network.target
+
+[Service]
+User=root
+ExecStart=/opt/prometheus/blackbox_exporter/blackbox_exporter --config.file=/opt/prometheus/blackbox_exporter/blackbox.yml --web.listen-address=:39115
+
+[Install]
+WantedBy=default.target
+EOF
+
+cat <<EOF >/usr/lib/systemd/system/consul_exporter.service
+[Unit]
+Description=Consul Exporter
+After=network.target
+
+[Service]
+User=root
+ExecStart=/opt/prometheus/consul_exporter/consul_exporter --web.listen-address=:39107
+
+[Install]
+WantedBy=default.target
+EOF
+
+cat <<EOF >/usr/lib/systemd/system/graphite_exporter.service
+[Unit]
+Description=Graphite Exporter
+After=network.target
+
+[Service]
+User=root
+ExecStart=/opt/prometheus/graphite_exporter/graphite_exporter --graphite.listen-address=":39109" --web.listen-address=:39108
+
+[Install]
+WantedBy=default.target
+EOF
+
+cat <<EOF >/usr/lib/systemd/system/memcached_exporter.service
+[Unit]
+Description=Memcached Exporter
+After=network.target
+
+[Service]
+User=root
+ExecStart=/opt/prometheus/memcached_exporter/memcached_exporter --web.listen-address=:39150
+
+[Install]
+WantedBy=default.target
+EOF
+
 cat <<EOF >/usr/lib/systemd/system/node_exporter.service
 [Unit]
 Description=Node Exporter
@@ -624,16 +684,79 @@ ExecStart=/opt/prometheus/node_exporter/node_exporter --web.listen-address=:3910
 WantedBy=default.target
 EOF
 
+cat <<EOF >/usr/lib/systemd/system/statsd_exporter.service
+[Unit]
+Description=Statsd Exporter
+After=network.target
+
+[Service]
+User=root
+ExecStart=/opt/prometheus/statsd_exporter/statsd_exporter --statsd.listen-udp=":39125" --statsd.listen-tcp=":39125" --web.listen-address=:39102
+
+[Install]
+WantedBy=default.target
+EOF
+
 vim /opt/prometheus/prometheus.yml
 # 添加监控
+# my global config
+global:
+  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+           - alertmanager:39093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
   - job_name: "prometheus"
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
     static_configs:
-      - targets: ["localhost:9090"]
+      - targets: ["192.168.254.100:39090"]
+
+  - job_name: 'blackbox_exporter'
+    static_configs:
+      - targets: ['192.168.254.100:39115']
+  - job_name: 'consul_exporter'
+    static_configs:
+      - targets: ['192.168.254.100:39107']
+  - job_name: 'graphite_exporter'
+    static_configs:
+      - targets: ['192.168.254.100:39108']
+  - job_name: 'memcached_exporter'
+    static_configs:
+      - targets: ['192.168.254.100:39150']
   - job_name: 'node_exporter'
     static_configs:
-      - targets: ['localhost:9100']
+      - targets: ['192.168.254.100:39100']
+  - job_name: 'statsd_exporter'
+    static_configs:
+      - targets: ['192.168.254.100:39102']
 
 systemctl enable --now prometheus
+systemctl enable --now alertmanager
+systemctl enable --now blackbox_exporter
+systemctl enable --now consul_exporter
+systemctl enable --now graphite_exporter
+systemctl enable --now memcached_exporter
 systemctl enable --now node_exporter
+systemctl enable --now statsd_exporter
+
+systemctl restart prometheus
 
 ```
