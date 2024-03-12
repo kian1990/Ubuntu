@@ -31,7 +31,7 @@ systemctl enable --now ssh
 # 安装MySQL5.7
 ## https://dev.mysql.com/doc/mysql-secure-deployment-guide/5.7/en/secure-deployment-post-install.html
 ```bash
-apt install libncurses5
+apt install -y libaio1 libncurses5
 wget https://downloads.mysql.com/archives/get/p/23/file/mysql-5.7.44-linux-glibc2.12-x86_64.tar.gz
 tar zxvf mysql-5.7.44-linux-glibc2.12-x86_64.tar.gz
 mv mysql-5.7.44-linux-glibc2.12-x86_64 /opt/mysql
@@ -95,6 +95,7 @@ mysql> FLUSH PRIVILEGES;
 ## 配置MySQL环境变量
 cat <<EOF >/etc/profile.d/mysql.sh
 export MYSQL_HOME=/opt/mysql
+export CLASSPATH=.:$MYSQL_HOME/lib
 export PATH=$PATH:$MYSQL_HOME/bin
 EOF
 
@@ -104,7 +105,7 @@ source /etc/profile.d/mysql.sh
 # 安装MySQL8.2
 ## https://dev.mysql.com/doc/mysql-secure-deployment-guide/8.0/en/secure-deployment-post-install.html
 ```bash
-apt install libncurses5
+apt install -y libaio1 libncurses5
 wget https://downloads.mysql.com/archives/get/p/23/file/mysql-8.2.0-linux-glibc2.28-x86_64.tar.xz
 tar zxvf mysql-8.2.0-linux-glibc2.28-x86_64.tar.gz
 mv mysql-8.2.0-linux-glibc2.28-x86_64 /opt/mysql
@@ -172,6 +173,7 @@ mysql> FLUSH PRIVILEGES;
 ## 配置MySQL环境变量
 cat <<EOF >/etc/profile.d/mysql.sh
 export MYSQL_HOME=/opt/mysql
+export CLASSPATH=.:$MYSQL_HOME/lib
 export PATH=$PATH:$MYSQL_HOME/bin
 EOF
 
