@@ -317,8 +317,10 @@ server {
     autoindex_localtime on;
   }
   location ~ \.php$ {
-    include snippets/fastcgi-php.conf;
+    include fastcgi_params;
+    fastcgi_intercept_errors on;
     fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+    fastcgi_param SCRIPT_FILENAME $document_root/$fastcgi_script_name;
   }
 }
 
