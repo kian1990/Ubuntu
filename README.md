@@ -765,6 +765,7 @@ systemctl restart prometheus
 ```
 
 # 安装Grafana
+## http://localhost:3000
 ```bash
 apt install -y apt-transport-https software-properties-common wget
 mkdir -p /etc/apt/keyrings/
@@ -773,4 +774,227 @@ echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stab
 apt update
 apt install -y grafana
 systemctl enable --now grafana-server
+```
+
+# 安装Hadoop2.6.0
+## https://www.oracle.com/java/technologies/downloads/archive
+## https://archive.apache.org/dist/hadoop/common
+## http://localhost:50070
+```bash
+wget https://archive.apache.org/dist/hadoop/common/hadoop-2.6.0/hadoop-2.6.0.tar.gz
+tar zxvf hadoop-2.6.0.tar.gz
+mv hadoop-2.6.0 /opt/hadoop
+tar zxvf jdk-8u391-linux-x64.tar.gz -C /opt/
+
+vim /opt/hadoop/etc/hadoop/hadoop-env.sh
+JAVA_HOME=/opt/jdk1.8.0_391
+
+vim /opt/hadoop/etc/hadoop/hdfs-site.xml
+<configuration>
+    <property>
+        <name>dfs.replication</name>
+        <value>1</value>
+    </property>
+</configuration>
+
+vim /opt/hadoop/etc/hadoop/core-site.xml
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://localhost:9000</value>
+    </property>
+    <property>
+        <name>hadoop.proxyuser.root.hosts</name>
+        <value>*</value>
+    </property>
+    <property>
+        <name>hadoop.proxyuser.root.users</name>
+        <value>*</value>
+    </property>
+    <property>
+        <name>hadoop.tmp.dir</name>
+        <value>/opt/hadoop/data</value>
+    </property>
+</configuration>
+
+## hadoop3.3.6需要加入以下配置允许root运行
+vim /opt/hadoop/sbin/start-dfs.sh
+vim /opt/hadoop/sbin/stop-dfs.sh
+# limitations under the License.
+HDFS_DATANODE_USER=root
+HADOOP_SECURE_DN_USER=hdfs
+HDFS_NAMENODE_USER=root
+HDFS_SECONDARYNAMENODE_USER=root
+
+vim /opt/hadoop/sbin/start-yarn.sh
+vim /opt/hadoop/sbin/stop-yarn.sh
+# limitations under the License.
+YARN_RESOURCEMANAGER_USER=root
+HADOOP_SECURE_DN_USER=yarn
+YARN_NODEMANAGER_USER=root
+```
+
+# 安装Hive2.3.9
+## https://repo1.maven.org/maven2/com/google/guava/guava
+## https://repo1.maven.org/maven2/mysql/mysql-connector-java
+## https://dlcdn.apache.org/hive
+## http://localhost:10002
+```bash
+wget https://dlcdn.apache.org/hive/hive-2.3.9/apache-hive-2.3.9-bin.tar.gz
+tar zxvf apache-hive-2.3.9-bin.tar.gz
+mv apache-hive-2.3.9-bin /opt/hive
+mv /opt/hive/conf/hive-env.sh.template /opt/hive/conf/hive-env.sh
+vim /opt/hive/conf/hive-env.sh
+HADOOP_HOME=/opt/hadoop
+
+cat <<EOF >/opt/hive/conf/hive-site.xml
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>javax.jdo.option.ConnectionURL</name>
+        <value>jdbc:mysql://localhost:3306/metastore?useSSL=false</value>
+    </property>
+    <property>
+        <name>javax.jdo.option.ConnectionDriverName</name>
+        <value>com.mysql.cj.jdbc.Driver</value>
+    </property>
+    <property>
+        <name>javax.jdo.option.ConnectionUserName</name>
+        <value>root</value>
+    </property>
+    <property>
+        <name>javax.jdo.option.ConnectionPassword</name>
+        <value>root</value>
+    </property>
+    <property>
+        <name>hive.metastore.warehouse.dir</name>
+        <value>/user/hive/warehouse</value>
+    </property>
+    <property>
+        <name>hive.server2.thrift.bind.host</name>
+        <value>localhost</value>
+    </property>
+    <property>
+        <name>hive.server2.thrift.port</name>
+        <value>10000</value>
+    </property>
+    <property>    
+        <name>hive.server2.active.passive.ha.enable</name>
+        <value>true</value>
+    </property>
+</configuration>
+EOF
+
+mysql -uroot -p
+mysql> create database metastore;
+
+/opt/hadoop/bin/hadoop fs -mkdir -p /user/hive/warehouse
+/opt/hadoop/bin/hadoop fs -chmod -R 777 /tmp
+/opt/hadoop/bin/hadoop fs -chmod -R 777 /user
+wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.30/mysql-connector-java-8.0.30.jar
+cp mysql-connector-java-8.0.30.jar /opt/hive/lib/
+/opt/hive/bin/schematool -dbType mysql -initSchema -verbose
+/opt/hive/bin/hive
+/opt/hive/bin/hiveserver2
+/opt/hive/bin/hive --service hiveserver2
+/opt/hive/bin/beeline -u jdbc:hive2://localhost:10000
+```
+
+# 安装Zookeeper
+## https://dlcdn.apache.org/zookeeper
+```bash
+wget https://dlcdn.apache.org/zookeeper/zookeeper-3.8.4/apache-zookeeper-3.8.4-bin.tar.gz
+tar zxvf apache-zookeeper-3.8.4-bin.tar.gz
+mv apache-zookeeper-3.8.4-bin /opt/zookeeper
+mv /opt/zookeeper/conf/zoo_sample.cfg /opt/zookeeper/conf/zoo.cfg
+
+vim /opt/zookeeper/conf/zoo.cfg
+dataDir=/opt/zookeeper/data
+4lw.commands.whitelist=mntr,conf,ruok
+
+mkdir /opt/zookeeper/data
+/opt/zookeeper/bin/zkServer.sh start
+/opt/zookeeper/bin/zkServer.sh stop
+```
+
+# 安装Hbase
+## https://dlcdn.apache.org/hbase
+## http://localhost:16010
+```bash
+wget https://dlcdn.apache.org/hbase/2.5.7/hbase-2.5.7-bin.tar.gz
+tar zxvf hbase-2.5.7-bin.tar.gz
+mv hbase-2.5.7-bin /opt/hbase
+mkdir /opt/hbase/data
+
+vim /opt/hbase/conf/hbase-env.sh
+export JAVA_HOME=/opt/jdk1.8.0_391
+
+cat <<EOF >/opt/hbase/conf/hbase-site.xml
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+  <property>
+    <name>hbase.rootdir</name>
+    <value>hdfs://localhost:9000/hbase</value>
+  </property>
+  <property>
+    <name>hbase.zookeeper.quorum</name>
+    <value>localhost</value>
+  </property>
+  <property>
+   <name>hbase.zookeeper.property.clientPort</name>
+   <value>2181</value>
+  </property>
+  <property>
+    <name>hbase.cluster.distributed</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>hbase.tmp.dir</name>
+    <value>/opt/hbase/data</value>
+  </property>
+  <property>
+    <name>hbase.unsafe.stream.capability.enforce</name>
+    <value>false</value>
+  </property>
+</configuration>
+EOF
+
+/opt/hbase/bin/start-hbase.sh
+/opt/hbase/bin/stop-hbase.sh
+```
+
+# 安装Solr
+## https://solr.apache.org/downloads.html
+## http://localhost:8983
+```bash
+tar zxvf solr-8.11.3.tgz
+mv solr-8.11.3 /opt/solr
+
+vim /opt/solr/bin/solr.in.sh
+SOLR_JAVA_HOME="/opt/jdk1.8.0_391"
+ZK_HOST="localhost:2181"
+SOLR_RECOMMENDED_OPEN_FILES=65000
+SOLR_RECOMMENDED_MAX_PROCESSES=65000
+SOLR_ULIMIT_CHECKS=false
+
+/opt/solr/bin/solr start -force
+/opt/solr/bin/solr stop -force
+```
+
+# 安装Sqoop
+## https://archive.apache.org/dist/sqoop
+```bash
+wget https://archive.apache.org/dist/sqoop/1.4.7/sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz
+tar zxvf sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz
+mv sqoop-1.4.7.bin__hadoop-2.6.0 /opt/sqoop
+mv /opt/sqoop/conf/sqoop-env-template.sh /opt/sqoop/conf/sqoop-env.sh
+
+vim /opt/sqoop/conf/sqoop-env.sh
+export HADOOP_COMMON_HOME=/opt/hadoop
+export HADOOP_MAPRED_HOME=/opt/hadoop/share/hadoop/mapreduce
+export HBASE_HOME=/opt/hbase
+export HIVE_HOME=/opt/hive
+export ZOOCFGDIR=/opt/zookeeper/conf
 ```
