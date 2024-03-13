@@ -776,14 +776,14 @@ apt install -y grafana
 systemctl enable --now grafana-server
 ```
 
-# 安装Hadoop2.6.0
+# 安装Hadoop2.10.2
 ## https://www.oracle.com/java/technologies/downloads/archive
 ## https://archive.apache.org/dist/hadoop/common
 ## http://localhost:50070
 ```bash
-wget https://archive.apache.org/dist/hadoop/common/hadoop-2.6.0/hadoop-2.6.0.tar.gz
-tar zxvf hadoop-2.6.0.tar.gz
-mv hadoop-2.6.0 /opt/hadoop
+wget https://archive.apache.org/dist/hadoop/common/hadoop-2.10.2/hadoop-2.10.2.tar.gz
+tar zxvf hadoop-2.10.2.tar.gz
+mv hadoop-2.10.2 /opt/hadoop
 tar zxvf jdk-8u391-linux-x64.tar.gz -C /opt/
 
 vim /opt/hadoop/etc/hadoop/hadoop-env.sh
@@ -832,6 +832,10 @@ vim /opt/hadoop/sbin/stop-yarn.sh
 YARN_RESOURCEMANAGER_USER=root
 HADOOP_SECURE_DN_USER=yarn
 YARN_NODEMANAGER_USER=root
+
+/opt/hadoop/bin/hdfs namenode -format
+/opt/hadoop/sbin/start-all.sh
+/opt/hadoop/sbin/stop-all.sh
 ```
 
 # 安装Hive2.3.9
@@ -893,11 +897,10 @@ mysql> create database metastore;
 /opt/hadoop/bin/hadoop fs -chmod -R 777 /tmp
 /opt/hadoop/bin/hadoop fs -chmod -R 777 /user
 wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.30/mysql-connector-java-8.0.30.jar
-cp mysql-connector-java-8.0.30.jar /opt/hive/lib/
+cp mysql-connector-java-8.0.30.jar /opt/hive/lib
 /opt/hive/bin/schematool -dbType mysql -initSchema -verbose
 /opt/hive/bin/hive
 /opt/hive/bin/hiveserver2
-/opt/hive/bin/hive --service hiveserver2
 /opt/hive/bin/beeline -u jdbc:hive2://localhost:10000
 ```
 
@@ -990,6 +993,12 @@ wget https://archive.apache.org/dist/sqoop/1.4.7/sqoop-1.4.7.bin__hadoop-2.6.0.t
 tar zxvf sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz
 mv sqoop-1.4.7.bin__hadoop-2.6.0 /opt/sqoop
 mv /opt/sqoop/conf/sqoop-env-template.sh /opt/sqoop/conf/sqoop-env.sh
+wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.30/mysql-connector-java-8.0.30.jar
+cp mysql-connector-java-8.0.30.jar /opt/sqoop/lib
+cp /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-* /opt/sqoop/lib
+cp /opt/hive/lib/hive-common-2.3.9.jar /opt/sqoop/lib/
+/opt/hadoop/bin/hadoop fs -mkdir -p /opt
+/opt/hadoop/bin/hdfs dfs -copyFromLocal /opt/sqoop hdfs://localhost:9000/opt/sqoop
 
 vim /opt/sqoop/conf/sqoop-env.sh
 export HADOOP_COMMON_HOME=/opt/hadoop
@@ -997,4 +1006,5 @@ export HADOOP_MAPRED_HOME=/opt/hadoop/share/hadoop/mapreduce
 export HBASE_HOME=/opt/hbase
 export HIVE_HOME=/opt/hive
 export ZOOCFGDIR=/opt/zookeeper/conf
+export HIVE_CONF_DIR=/opt/hive/conf
 ```
