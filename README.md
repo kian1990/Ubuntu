@@ -947,6 +947,7 @@ mkdir /opt/hbase/data
 
 vim /opt/hbase/conf/hbase-env.sh
 export JAVA_HOME=/opt/jdk1.8.0_391
+export HBASE_MANAGES_ZK=false
 
 cat <<EOF >/opt/hbase/conf/hbase-site.xml
 <?xml version="1.0"?>
