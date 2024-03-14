@@ -1009,4 +1009,21 @@ cp -r /opt/hive/lib/* /opt/sqoop/lib
 /opt/hadoop/bin/hadoop fs -mkdir -p /opt
 /opt/hadoop/bin/hdfs dfs -copyFromLocal /opt/sqoop hdfs://localhost:9000/opt/sqoop
 /opt/hadoop/bin/hadoop fs -rm -r /opt
+
+## 测试导入MySQL数据库
+/opt/sqoop/bin/sqoop list-tables \
+--connect jdbc:mysql://localhost:3306/test \
+--username root \
+--password root
+
+/opt/sqoop/bin/sqoop import \
+--connect jdbc:mysql://localhost:3306/test \
+--username root \
+--password root \
+--table websites \
+--delete-target-dir \
+--hive-import \
+--hive-table websites \
+--create-hive-table \
+--fields-terminated-by '\t'
 ```
