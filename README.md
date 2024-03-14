@@ -986,19 +986,13 @@ SOLR_ULIMIT_CHECKS=false
 /opt/solr/bin/solr stop -force
 ```
 
-# 安装Sqoop
+# 安装Sqoop1.4.7
 ## https://archive.apache.org/dist/sqoop
 ```bash
 wget https://archive.apache.org/dist/sqoop/1.4.7/sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz
 tar zxvf sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz
 mv sqoop-1.4.7.bin__hadoop-2.6.0 /opt/sqoop
 mv /opt/sqoop/conf/sqoop-env-template.sh /opt/sqoop/conf/sqoop-env.sh
-wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.30/mysql-connector-java-8.0.30.jar
-cp mysql-connector-java-8.0.30.jar /opt/sqoop/lib
-cp /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-* /opt/sqoop/lib
-cp /opt/hive/lib/hive-common-2.3.9.jar /opt/sqoop/lib/
-/opt/hadoop/bin/hadoop fs -mkdir -p /opt
-/opt/hadoop/bin/hdfs dfs -copyFromLocal /opt/sqoop hdfs://localhost:9000/opt/sqoop
 
 vim /opt/sqoop/conf/sqoop-env.sh
 export HADOOP_COMMON_HOME=/opt/hadoop
@@ -1007,4 +1001,12 @@ export HBASE_HOME=/opt/hbase
 export HIVE_HOME=/opt/hive
 export ZOOCFGDIR=/opt/zookeeper/conf
 export HIVE_CONF_DIR=/opt/hive/conf
+
+wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.30/mysql-connector-java-8.0.30.jar
+cp mysql-connector-java-8.0.30.jar /opt/sqoop/lib
+cp /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-* /opt/sqoop/lib
+cp /opt/hive/lib/hive-common-2.3.9.jar /opt/sqoop/lib
+/opt/hadoop/bin/hadoop fs -mkdir -p /opt
+/opt/hadoop/bin/hdfs dfs -copyFromLocal /opt/sqoop hdfs://localhost:9000/opt/sqoop
+
 ```
