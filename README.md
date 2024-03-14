@@ -902,6 +902,21 @@ cp mysql-connector-java-8.0.30.jar /opt/hive/lib
 /opt/hive/bin/hive
 /opt/hive/bin/hiveserver2
 /opt/hive/bin/beeline -u jdbc:hive2://localhost:10000
+
+## 创建启动脚本
+mkdir /opt/hive/logs
+
+vim /opt/hive/start.sh
+#!/bin/bash
+ps -ef|grep 'hiveserver2'|grep -v 'grep'|awk '{print $2}'|xargs kill -9
+nohup /opt/hive/bin/hiveserver2 >> /opt/hive/logs/hiveserver2.log 2>&1 &
+tail -f /opt/hive/logs/hiveserver2.log
+
+vim /opt/hive/stop.sh
+#!/bin/bash
+ps -ef|grep 'hiveserver2'|grep -v 'grep'|awk '{print $2}'|xargs kill -9
+
+chmod +x /opt/hive/*.sh
 ```
 
 # 安装Zookeeper
