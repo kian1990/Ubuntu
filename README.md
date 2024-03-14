@@ -184,7 +184,9 @@ source /etc/profile.d/mysql.sh
 ## https://www.rabbitmq.com/docs/install-debian
 ```bash
 apt install -y curl gnupg apt-transport-https
-curl -1sLf "https://keys.openpgp.org/vks/v1/by-fingerprint/0A9AF2115F4687BD29803A206B73A36E6026DFCA" | gpg --dearmor | tee /usr/share/keyrings/com.rabbitmq.team.gpg > /dev/null
+curl -1sLf "https://keys.openpgp.org/vks/v1/by-fingerprint/0A9AF2115F4687BD29803A206B73A36E6026DFCA" | sudo gpg --dearmor | sudo tee /usr/share/keyrings/com.rabbitmq.team.gpg > /dev/null
+curl -1sLf https://github.com/rabbitmq/signing-keys/releases/download/3.0/cloudsmith.rabbitmq-erlang.E495BB49CC4BBE5B.key | sudo gpg --dearmor | sudo tee /usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg > /dev/null
+curl -1sLf https://github.com/rabbitmq/signing-keys/releases/download/3.0/cloudsmith.rabbitmq-server.9F4587F226208342.key | sudo gpg --dearmor | sudo tee /usr/share/keyrings/rabbitmq.9F4587F226208342.gpg > /dev/null
 
 sudo tee /etc/apt/sources.list.d/rabbitmq.list <<EOF
 ## Provides modern Erlang/OTP releases
@@ -212,24 +214,14 @@ erlang-asn1 erlang-crypto erlang-eldap erlang-ftp erlang-inets \
 erlang-mnesia erlang-os-mon erlang-parsetools erlang-public-key \
 erlang-runtime-tools erlang-snmp erlang-ssl \
 erlang-syntax-tools erlang-tftp erlang-tools erlang-xmerl
+
 apt install -y rabbitmq-server --fix-missing
 
-cat <<EOF >/etc/rabbitmq/rabbitmq.config
-[
- {rabbit,
-  [%%
-  %% Network Connectivity
-  %% ====================
-  %%
-  %% By default, RabbitMQ will listen on all interfaces, using
-  %% the standard (reserved) AMQP port.
-  %%
-  {tcp_listeners, [5672]},
-  {loopback_users, ["guest"]}
-  ]}
-].
+cat <<EOF >/etc/rabbitmq/rabbitmq.conf
+loopback_users = none
 EOF
 
+rabbitmqctl enable_feature_flag all
 rabbitmq-plugins enable rabbitmq_management
 systemctl enable --now rabbitmq-server
 ```
