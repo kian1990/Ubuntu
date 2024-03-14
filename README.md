@@ -1005,8 +1005,8 @@ export HIVE_CONF_DIR=/opt/hive/conf
 wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.30/mysql-connector-java-8.0.30.jar
 cp mysql-connector-java-8.0.30.jar /opt/sqoop/lib
 cp /opt/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-* /opt/sqoop/lib
-cp /opt/hive/lib/hive-common-2.3.9.jar /opt/sqoop/lib
+cp -r /opt/hive/lib/* /opt/sqoop/lib
 /opt/hadoop/bin/hadoop fs -mkdir -p /opt
 /opt/hadoop/bin/hdfs dfs -copyFromLocal /opt/sqoop hdfs://localhost:9000/opt/sqoop
-
+/opt/hadoop/bin/hadoop fs -rm -r /opt
 ```
