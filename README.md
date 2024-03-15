@@ -1032,6 +1032,7 @@ cp -r /opt/hive/lib/* /opt/sqoop/lib
 --delete-target-dir \
 --hive-import \
 --hive-table websites \
+--hive-overwrite \
 --create-hive-table \
---fields-terminated-by '\t'
+--fields-terminated-by ','
 ```
