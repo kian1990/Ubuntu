@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MySQL 查询</title>
+</head>
+<body>
+    <h1>输入 MySQL 连接信息</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        {{ form.username.label }} {{ form.username }}
+        {{ form.password.label }} {{ form.password }}
+        {{ form.database.label }} {{ form.database }}
+        {{ form.table.label }} {{ form.table }}
+        {{ form.query.label }} {{ form.query(size=50) }}
+        {{ form.submit() }}
+    </form>
+
+    {% if results %}
+    <h2>查询结果</h2>
+    <ul>
+        {% for row in results %}
+            <li>{{ row }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</body>
+</html>
