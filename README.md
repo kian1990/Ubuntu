@@ -1028,11 +1028,12 @@ cp -r /opt/hive/lib/* /opt/sqoop/lib
 --connect jdbc:mysql://localhost:3306/test \
 --username root \
 --password root \
---table websites \
+--table web \
 --delete-target-dir \
 --hive-import \
---hive-table websites \
+--hive-table web \
 --hive-overwrite \
 --create-hive-table \
---fields-terminated-by ','
+--fields-terminated-by ',' \
+-m 1
 ```
