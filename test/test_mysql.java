@@ -20,7 +20,7 @@ public class test_mysql {
 
             // 创建查询语句
             stmt = conn.createStatement();
-            String sql = "SELECT * FROM websites"; // 替换为您要查询的表名
+            String sql = "SELECT * FROM web"; // 替换为您要查询的表名
 
             // 执行查询
             ResultSet rs = stmt.executeQuery(sql);
