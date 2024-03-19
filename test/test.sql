@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS web;
 CREATE TABLE web (
-  url VARCHAR(100),
   ranking VARCHAR(100),
+  url VARCHAR(100),
   type VARCHAR(100)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
