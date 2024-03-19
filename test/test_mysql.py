@@ -12,7 +12,7 @@ conn = mysql.connector.connect(
 cursor = conn.cursor()
 
 # 执行查询
-query = "SELECT * FROM websites"
+query = "SELECT * FROM web"
 cursor.execute(query)
 
 # 获取查询结果
