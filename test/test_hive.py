@@ -7,7 +7,7 @@ conn = hive.Connection(host='localhost', port=10000, username='root')
 cursor = conn.cursor()
 
 # 执行一个查询
-cursor.execute('SELECT * FROM websites')
+cursor.execute('SELECT * FROM web')
 
 # 获取查询结果
 for result in cursor.fetchall():
