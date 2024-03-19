@@ -1,20 +1,27 @@
-DROP TABLE IF EXISTS `websites`;
-CREATE TABLE `websites` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` char(20) NOT NULL DEFAULT '' COMMENT '站点名称',
-  `url` varchar(255) NOT NULL DEFAULT '',
-  `alexa` int NOT NULL DEFAULT '0' COMMENT 'Alexa 排名',
-  `country` char(10) NOT NULL DEFAULT '' COMMENT '国家',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb3;
+DROP TABLE IF EXISTS web;
+CREATE TABLE web (
+  url VARCHAR(100),
+  ranking VARCHAR(100),
+  type VARCHAR(100)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
-INSERT INTO `websites` VALUES (1,'Google','google.com',1,'美国');
-INSERT INTO `websites` VALUES (2,'Youtube','youtube.com',2,'美国');
-INSERT INTO `websites` VALUES (3,'Facebook','facebook.com',3,'美国');
-INSERT INTO `websites` VALUES (4,'Baidu','baidu.com',4,'美国');
-INSERT INTO `websites` VALUES (5,'Yahoo','yahoo.com',5,'美国');
-INSERT INTO `websites` VALUES (6,'Amazon','amazon.com',6,'美国');
-INSERT INTO `websites` VALUES (7,'Wikipedia','wikipedia.org',7,'美国');
-INSERT INTO `websites` VALUES (8,'QQ','qq.com',8,'中国');
-INSERT INTO `websites` VALUES (9,'Google.co.in','google.co.in',9,'印度');
-INSERT INTO `websites` VALUES (10,'Twitter','twitter.com',10,'美国');
+INSERT INTO web VALUES ('1','https://www.google.com/','搜索引擎');
+INSERT INTO web VALUES ('2','https://www.youtube.com/','视频分享');
+INSERT INTO web VALUES ('3','https://www.facebook.com/','社交网络');
+INSERT INTO web VALUES ('4','https://twitter.com/','社交网络');
+INSERT INTO web VALUES ('5','https://www.amazon.com/','电商');
+INSERT INTO web VALUES ('6','https://www.baidu.com/','搜索引擎');
+INSERT INTO web VALUES ('7','https://www.wikipedia.org/','百科全书');
+INSERT INTO web VALUES ('8','https://www.instagram.com/','社交网络');
+INSERT INTO web VALUES ('9','https://www.yahoo.com/','门户网站');
+INSERT INTO web VALUES ('10','https://www.reddit.com/','社交新闻');
+INSERT INTO web VALUES ('11','https://www.tiktok.com/','短视频');
+INSERT INTO web VALUES ('12','https://www.microsoft.com/','软件和科技');
+INSERT INTO web VALUES ('13','https://www.apple.com/','软件和科技');
+INSERT INTO web VALUES ('14','https://www.netflix.com/','流媒体');
+INSERT INTO web VALUES ('15','https://www.ebay.com/','电商');
+INSERT INTO web VALUES ('16','https://www.pinterest.com/','社交分享');
+INSERT INTO web VALUES ('17','https://www.linkedin.com/','职业社交');
+INSERT INTO web VALUES ('18','https://open.spotify.com/','流媒体');
+INSERT INTO web VALUES ('19','https://www.quora.com/','问答');
+INSERT INTO web VALUES ('20','https://www.dailymotion.com/','视频分享');
