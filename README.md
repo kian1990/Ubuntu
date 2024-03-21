@@ -1,7 +1,14 @@
-# Ubuntu 22.04 常用服务安装
+---
+date: 2024-03-21
+authors:
+  - kian
+categories:
+  - 文档
+---
 
+# Ubuntu
 
-# 配置APT源
+## 配置APT源
 ```bash
 cat <<EOF >/etc/apt/sources.list
 deb https://mirrors.ustc.edu.cn/ubuntu/ jammy main restricted
@@ -18,8 +25,9 @@ EOF
 
 apt update && apt install -y wget
 ```
+<!-- more -->
 
-# 安装SSH
+## 安装SSH
 ```bash
 apt install -y openssh-server
 sed -i "s/#Port 22/Port 30022/g" /etc/ssh/sshd_config
@@ -28,8 +36,8 @@ sed -i "s/#PasswordAuthentication yes/PasswordAuthentication yes/g" /etc/ssh/ssh
 systemctl enable --now ssh
 ```
 
-# 安装MySQL5.7
-## https://dev.mysql.com/doc/mysql-secure-deployment-guide/5.7/en/secure-deployment-post-install.html
+## 安装MySQL5.7
+[官方文档](https://dev.mysql.com/doc/mysql-secure-deployment-guide/5.7/en/secure-deployment-post-install.html)
 ```bash
 apt install -y libaio1 libncurses5
 wget https://downloads.mysql.com/archives/get/p/23/file/mysql-5.7.44-linux-glibc2.12-x86_64.tar.gz
@@ -102,8 +110,8 @@ EOF
 source /etc/profile.d/mysql.sh
 ```
 
-# 安装MySQL8.2
-## https://dev.mysql.com/doc/mysql-secure-deployment-guide/8.0/en/secure-deployment-post-install.html
+## 安装MySQL8.2
+[官方文档](https://dev.mysql.com/doc/mysql-secure-deployment-guide/8.0/en/secure-deployment-post-install.html)
 ```bash
 apt install -y libaio1 libncurses5
 wget https://downloads.mysql.com/archives/get/p/23/file/mysql-8.2.0-linux-glibc2.28-x86_64.tar.xz
@@ -180,8 +188,8 @@ EOF
 source /etc/profile.d/mysql.sh
 ```
 
-# 安装RabbitMQ
-## https://www.rabbitmq.com/docs/install-debian
+## 安装RabbitMQ
+[官方文档](https://www.rabbitmq.com/docs/install-debian)
 ```bash
 apt install -y curl gnupg apt-transport-https
 curl -1sLf "https://keys.openpgp.org/vks/v1/by-fingerprint/0A9AF2115F4687BD29803A206B73A36E6026DFCA" | sudo gpg --dearmor | sudo tee /usr/share/keyrings/com.rabbitmq.team.gpg > /dev/null
@@ -226,8 +234,8 @@ rabbitmq-plugins enable rabbitmq_management
 systemctl enable --now rabbitmq-server
 ```
 
-# 安装Nginx
-## https://nginx.org/en/linux_packages.html
+## 安装Nginx
+[官方文档](https://nginx.org/en/linux_packages.html)
 ```bash
 apt install curl gnupg2 ca-certificates lsb-release ubuntu-keyring
 curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor | tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
@@ -284,9 +292,9 @@ EOF
 systemctl enable --now nginx
 ```
 
-# 安装PHP8.3
-## https://php.watch/
-## https://docs.phpmyadmin.net/zh-cn/latest/setup.html
+## 安装PHP8.3
+[PHP文档](https://php.watch/)
+[phpMyAdmin文档](https://docs.phpmyadmin.net/zh-cn/latest/setup.html)
 ```bash
 add-apt-repository ppa:ondrej/php
 apt install -y php8.3-fpm
@@ -326,9 +334,9 @@ apt install -y php8.3-mysql php8.3-bz2 php8.3-zip php8.3-mbstring
 ## 注意不能使用localhost，要使用127.0.0.1
 ```
 
-# 安装Tomcat
-## https://www.oracle.com/cn/java/technologies/downloads/archive/
-## https://tomcat.apache.org/
+## 安装Tomcat
+[JDK下载](https://www.oracle.com/cn/java/technologies/downloads/archive/)
+[Tomcat下载](https://tomcat.apache.org/)
 ```bash
 wget https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.99/bin/apache-tomcat-8.5.99.tar.gz
 tar zxvf apache-tomcat-8.5.99.tar.gz
@@ -378,8 +386,8 @@ vim /opt/tomcat/webapps/manager/META-INF/context.xml
       </Host>
 ```
 
-# 安装Redis
-## https://redis.io/docs/install/install-redis/install-redis-on-linux
+## 安装Redis
+[官方文档](https://redis.io/docs/install/install-redis/install-redis-on-linux)
 ```bash
 sudo apt install -y lsb-release curl gpg
 curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
@@ -393,7 +401,7 @@ sed -i "s/notify-keyspace-events \"\"/notify-keyspace-events Ex/g" /etc/redis/re
 systemctl enable --now redis-server
 ```
 
-# 安装Squid
+## 安装Squid
 ```bash
 apt install -y squid
 
@@ -412,7 +420,7 @@ EOF
 systemctl enable --now squid
 ```
 
-# 安装Privoxy
+## 安装Privoxy
 ```bash
 apt install -y privoxy
 
@@ -449,7 +457,7 @@ EOF
 systemctl enable --now privoxy
 ```
 
-# 安装Shadowsocks-rust
+## 安装Shadowsocks-rust
 ```bash
 wget https://github.com/shadowsocks/shadowsocks-rust/releases/download/v1.18.1/shadowsocks-v1.18.1.x86_64-unknown-linux-musl.tar.xz
 tar Jxvf shadowsocks-v1.18.1.x86_64-unknown-linux-musl.tar.xz -C /usr/local/bin
@@ -538,7 +546,7 @@ source proxy.sh
 source unproxy.sh
 ```
 
-# 安装Gitlab
+## 安装Gitlab
 ```bash
 apt install -y curl openssh-server ca-certificates postfix
 curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash
@@ -557,7 +565,7 @@ vim /etc/gitlab/gitlab.rb
 gitlab-ctl reconfigure
 ```
 
-## 查看使用的端口
+### 查看使用的端口
 ```bash
 netstat -tunlp
 tcp        0      0 127.0.0.1:9229          0.0.0.0:*               LISTEN      2304/gitlab-workhor 
@@ -582,8 +590,8 @@ tcp6       0      0 :::9094                 :::*                    LISTEN      
 udp6       0      0 :::9094                 :::*                                2372/alertmanager
 ```
 
-# 安装Prometheus
-## https://prometheus.io/download/
+## 安装Prometheus
+[官方文档](https://prometheus.io/download)
 ```bash
 cd /opt/prometheus
 
@@ -756,8 +764,8 @@ systemctl enable --now statsd_exporter
 systemctl restart prometheus
 ```
 
-# 安装Grafana
-## http://localhost:3000
+## 安装Grafana
+[http://localhost:3000](http://localhost:3000)
 ```bash
 apt install -y apt-transport-https software-properties-common wget
 mkdir -p /etc/apt/keyrings/
@@ -768,10 +776,10 @@ apt install -y grafana
 systemctl enable --now grafana-server
 ```
 
-# 安装Hadoop2.10.2
-## https://www.oracle.com/java/technologies/downloads/archive
-## https://archive.apache.org/dist/hadoop/common
-## http://localhost:50070
+## 安装Hadoop2.10.2
+[JDK下载](https://www.oracle.com/java/technologies/downloads/archive)
+[Hadoop下载](https://archive.apache.org/dist/hadoop/common)
+[http://localhost:50070](http://localhost:50070)
 ```bash
 wget https://archive.apache.org/dist/hadoop/common/hadoop-2.10.2/hadoop-2.10.2.tar.gz
 tar zxvf hadoop-2.10.2.tar.gz
@@ -830,11 +838,11 @@ YARN_NODEMANAGER_USER=root
 /opt/hadoop/sbin/stop-all.sh
 ```
 
-# 安装Hive2.3.9
-## https://repo1.maven.org/maven2/com/google/guava/guava
-## https://repo1.maven.org/maven2/mysql/mysql-connector-java
-## https://dlcdn.apache.org/hive
-## http://localhost:10002
+## 安装Hive2.3.9
+[guava下载](https://repo1.maven.org/maven2/com/google/guava/guava)
+[mysql-connector-java下载](https://repo1.maven.org/maven2/mysql/mysql-connector-java)
+[Hive下载](https://dlcdn.apache.org/hive)
+[http://localhost:10002](http://localhost:10002)
 ```bash
 wget https://dlcdn.apache.org/hive/hive-2.3.9/apache-hive-2.3.9-bin.tar.gz
 tar zxvf apache-hive-2.3.9-bin.tar.gz
@@ -911,8 +919,8 @@ ps -ef|grep 'hiveserver2'|grep -v 'grep'|awk '{print $2}'|xargs kill -9
 chmod +x /opt/hive/*.sh
 ```
 
-# 安装Zookeeper
-## https://dlcdn.apache.org/zookeeper
+## 安装Zookeeper
+[官方文档](https://dlcdn.apache.org/zookeeper)
 ```bash
 wget https://dlcdn.apache.org/zookeeper/zookeeper-3.8.4/apache-zookeeper-3.8.4-bin.tar.gz
 tar zxvf apache-zookeeper-3.8.4-bin.tar.gz
@@ -928,9 +936,9 @@ mkdir /opt/zookeeper/data
 /opt/zookeeper/bin/zkServer.sh stop
 ```
 
-# 安装Hbase
-## https://dlcdn.apache.org/hbase
-## http://localhost:16010
+## 安装Hbase
+[官方文档](https://dlcdn.apache.org/hbase)
+[http://localhost:16010](http://localhost:16010)
 ```bash
 wget https://dlcdn.apache.org/hbase/2.5.7/hbase-2.5.7-bin.tar.gz
 tar zxvf hbase-2.5.7-bin.tar.gz
@@ -976,9 +984,9 @@ EOF
 /opt/hbase/bin/stop-hbase.sh
 ```
 
-# 安装Solr
-## https://solr.apache.org/downloads.html
-## http://localhost:8983
+## 安装Solr
+[官方文档](https://solr.apache.org/downloads.html)
+[http://localhost:8983](http://localhost:8983)
 ```bash
 tar zxvf solr-8.11.3.tgz
 mv solr-8.11.3 /opt/solr
@@ -994,8 +1002,8 @@ SOLR_ULIMIT_CHECKS=false
 /opt/solr/bin/solr stop -force
 ```
 
-# 安装Sqoop1.4.7
-## https://archive.apache.org/dist/sqoop
+## 安装Sqoop1.4.7
+[Sqoop下载](https://archive.apache.org/dist/sqoop)
 ```bash
 wget https://archive.apache.org/dist/sqoop/1.4.7/sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz
 tar zxvf sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz
