@@ -6,7 +6,7 @@ categories:
   - 文档
 ---
 
-# Ubuntu
+# :material-ubuntu: **Ubuntu**
 
 ## 配置APT源
 ```bash
