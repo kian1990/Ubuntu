@@ -1,0 +1,159 @@
+body {
+  background:#f7f7f7
+}
+
+.top {
+  padding-top:20px;
+  padding-bottom:20px;
+  margin:auto;
+  color:#fff;
+  background:#198754
+}
+
+.news {
+  padding-top:20px;
+  padding-bottom:20px;
+  color:#198754
+}
+
+.news .container {
+  padding-bottom:20px;
+  background:#fff;
+  box-shadow:1px 1px 5px #888
+}
+
+.news .container:hover {
+  box-shadow:4px 4px 20px #888
+}
+
+.news-title {
+  width:50px;
+  padding-top:5px;
+  padding-bottom:5px;
+  text-align:center;
+  color:#fff;
+  background:#198754
+}
+
+.app {
+  padding-bottom:20px;
+  color:#198754;
+  font-size:100%;
+  text-align:center
+}
+
+.app .row {
+  padding-top:20px
+}
+
+.app .container {
+  padding-bottom:20px;
+  background:#fff;
+  box-shadow:1px 1px 5px #888
+}
+
+.app .container:hover {
+  box-shadow:4px 4px 20px #888
+}
+
+.app-title {
+  width:50px;
+  padding-top:5px;
+  padding-bottom:5px;
+  text-align:center;
+  color:#fff;
+  background:#198754
+}
+
+
+.footer-top {
+  padding-top:10px;
+  padding-bottom:10px;
+  text-align:center;
+  color:#fff;
+  background:#198754
+}
+
+.footer-top a {
+  text-decoration:none;
+  color:rgba(255,255,255,.5)
+}
+
+.footer-top a:hover {
+  text-decoration:none;
+  color:#fff
+}
+
+.footer-top-title {
+  color:#fff;
+  padding-top:10px
+}
+
+.footer {
+  padding-bottom:10px;
+  text-align:center;
+  font-size:80%;
+  color:rgba(255,255,255,.5);
+  background:#198754
+}
+
+.footer:hover {
+  color:#fff
+}
+
+
+@media (min-width:1200px) {
+  .app img {
+    width:100px;
+    height:auto;
+    margin:0 auto
+  }
+}
+
+@media (min-width:992px) and (max-width:1200px) {
+  .app img {
+    width:80px;
+    height:auto;
+    margin:0 auto
+  }
+  .app .row {
+    font-size:80%;
+    text-align:center
+  }
+}
+
+@media (min-width:768px) and (max-width:992px) {
+  .app img {
+    width:80px;
+    height:auto;
+    margin:0 auto
+  }
+  .app .row {
+    font-size:80%;
+    text-align:center
+  }
+}
+
+@media (max-width:768px){
+  .app img {
+    width:60px;
+    height:auto;
+    margin:0 auto
+  }
+  .app .row {
+    font-size:50%;
+    text-align:center
+  }
+}
+
+/*自定义Bootstrap项*/
+.carousel-control-next-icon{background-image:none}
+.carousel-control-prev-icon{background-image:none}
+.btn-outline-light{color:#fff;background-color:transparent;background-image:none;border-color:#fff}
+.btn-outline-light:hover{color:#198754;background-color:#fff;border-color:#fff}
+.btn-outline-dark{color:#198754;background-color:transparent;background-image:none;border-color:#198754}
+.btn-outline-dark:hover{color:#fff;background-color:#198754;border-color:#fff}
+.navbar-brand{margin:auto}
+.nav-item{margin:auto}
+
+
