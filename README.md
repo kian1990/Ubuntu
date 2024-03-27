@@ -496,6 +496,7 @@ EOF
 
 systemctl enable --now ssserver
 
+## 客户端
 cat <<EOF >/usr/local/etc/sslocal.json
 {
   "server":"your_ip",
@@ -510,7 +511,6 @@ cat <<EOF >/usr/local/etc/sslocal.json
 }
 EOF
 
-## 客户端
 cat <<EOF >/usr/lib/systemd/system/sslocal.service
 [Unit]
 Description=Shadowsocks-rust Default Server Service
@@ -851,42 +851,71 @@ mv /opt/hive/conf/hive-env.sh.template /opt/hive/conf/hive-env.sh
 vim /opt/hive/conf/hive-env.sh
 HADOOP_HOME=/opt/hadoop
 
+## 本地模式
 cat <<EOF >/opt/hive/conf/hive-site.xml
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <configuration>
-    <property>
-        <name>javax.jdo.option.ConnectionURL</name>
-        <value>jdbc:mysql://localhost:3306/metastore?useSSL=false</value>
-    </property>
-    <property>
-        <name>javax.jdo.option.ConnectionDriverName</name>
-        <value>com.mysql.cj.jdbc.Driver</value>
-    </property>
-    <property>
-        <name>javax.jdo.option.ConnectionUserName</name>
-        <value>root</value>
-    </property>
-    <property>
-        <name>javax.jdo.option.ConnectionPassword</name>
-        <value>root</value>
-    </property>
-    <property>
-        <name>hive.metastore.warehouse.dir</name>
-        <value>/user/hive/warehouse</value>
-    </property>
-    <property>
-        <name>hive.server2.thrift.bind.host</name>
-        <value>localhost</value>
-    </property>
-    <property>
-        <name>hive.server2.thrift.port</name>
-        <value>10000</value>
-    </property>
-    <property>    
-        <name>hive.server2.active.passive.ha.enable</name>
-        <value>true</value>
-    </property>
+<property>
+  <name>hive.metastore.warehouse.dir</name>
+  <value>/user/hive/warehouse</value>
+</property>
+<property>
+  <name>hive.metastore.local</name>
+  <value>true</value>
+</property>
+<property>
+  <name>javax.jdo.option.ConnectionURL</name>
+  <value>jdbc:mysql://localhost/metastore?createDatabaseIfNotExist=true</value>
+</property>
+<property>
+  <name>javax.jdo.option.ConnectionDriverName</name>
+  <value>com.mysql.jdbc.Driver</value>
+</property>
+<property>
+  <name>javax.jdo.option.ConnectionUserName</name>
+  <value>root</value>
+</property>
+<property>
+  <name>javax.jdo.option.ConnectionPassword</name>
+  <value>root</value>
+</property>
+</configuration>
+EOF
+
+## 远程模式
+cat <<EOF >/opt/hive/conf/hive-site.xml
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+<property>
+  <name>hive.metastore.warehouse.dir</name>
+  <value>/user/hive/warehouse</value>
+</property>
+<property>
+  <name>javax.jdo.option.ConnectionURL</name>
+  <value>jdbc:mysql://localhost:3306/metastore?createDatabaseIfNotExist=true</value>
+</property>
+<property>
+  <name>javax.jdo.option.ConnectionDriverName</name>
+  <value>com.mysql.jdbc.Driver</value>
+</property>
+<property>
+  <name>javax.jdo.option.ConnectionUserName</name>
+  <value>root</value>
+</property>
+<property>
+  <name>javax.jdo.option.ConnectionPassword</name>
+  <value>root</value>
+</property>
+<property>
+  <name>hive.metastore.local</name>
+  <value>false</value>
+</property>
+<property>
+  <name>hive.metastore.uris</name>
+  <value>thrift://localhost:9083</value>
+</property>
 </configuration>
 EOF
 
