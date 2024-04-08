@@ -6,7 +6,7 @@ categories:
   - 文档
 ---
 
-# :material-ubuntu: **Ubuntu**
+# **Ubuntu**
 
 ## 配置APT源
 ```bash
@@ -870,7 +870,7 @@ cat <<EOF >/opt/hive/conf/hive-site.xml
 </property>
 <property>
   <name>javax.jdo.option.ConnectionDriverName</name>
-  <value>com.mysql.jdbc.Driver</value>
+  <value>com.mysql.cj.jdbc.Driver</value>
 </property>
 <property>
   <name>javax.jdo.option.ConnectionUserName</name>
@@ -879,6 +879,18 @@ cat <<EOF >/opt/hive/conf/hive-site.xml
 <property>
   <name>javax.jdo.option.ConnectionPassword</name>
   <value>root</value>
+</property>
+<property>
+  <name>hive.strict.checks.cartesian.product</name>
+  <value>false</value>
+</property>
+<property>
+  <name>hive.support.quoted_identifiers</name>
+  <value>none</value>
+</property>
+<property>
+  <name>hive.support.subqueries</name>
+  <value>true</value>
 </property>
 </configuration>
 EOF
@@ -898,7 +910,7 @@ cat <<EOF >/opt/hive/conf/hive-site.xml
 </property>
 <property>
   <name>javax.jdo.option.ConnectionDriverName</name>
-  <value>com.mysql.jdbc.Driver</value>
+  <value>com.mysql.cj.jdbc.Driver</value>
 </property>
 <property>
   <name>javax.jdo.option.ConnectionUserName</name>
@@ -915,6 +927,18 @@ cat <<EOF >/opt/hive/conf/hive-site.xml
 <property>
   <name>hive.metastore.uris</name>
   <value>thrift://localhost:9083</value>
+</property>
+<property>
+  <name>hive.strict.checks.cartesian.product</name>
+  <value>false</value>
+</property>
+<property>
+  <name>hive.support.quoted_identifiers</name>
+  <value>none</value>
+</property>
+<property>
+  <name>hive.support.subqueries</name>
+  <value>true</value>
 </property>
 </configuration>
 EOF
