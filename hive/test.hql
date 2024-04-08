@@ -1,3 +1,4 @@
+-- 创建表
 CREATE TABLE IF NOT EXISTS web (
   web_ranking INT,
   web_id BIGINT,
@@ -8,8 +9,13 @@ ROW FORMAT DELIMITED
 FIELDS TERMINATED BY ','
 STORED AS TEXTFILE;
 
+-- 清空表
+truncate table web;
+
+-- 从文件导入数据
 load data local inpath "/root/web.csv" into table web;
 
+-- 通过语句导入数据
 INSERT INTO web VALUES (1,421282199801130018,'https://www.google.com/','搜索引擎');
 INSERT INTO web VALUES (2,421282199202290018,'https://www.youtube.com/','视频分享');
 INSERT INTO web VALUES (3,421282200103120018,'https://www.facebook.com/','社交网络');
