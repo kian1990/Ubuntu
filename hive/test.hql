@@ -12,7 +12,7 @@ STORED AS TEXTFILE;
 truncate table web;
 
 -- 从文件导入数据
-load data local inpath "/root/test.csv" into table web;
+load data local inpath "/root/test.csv" into table test;
 
 -- 通过语句导入数据
 INSERT INTO test VALUES (1,'搜索引擎','2000-01-08');
