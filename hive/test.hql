@@ -9,7 +9,7 @@ FIELDS TERMINATED BY ','
 STORED AS TEXTFILE;
 
 -- 清空表
-truncate table web;
+truncate table test;
 
 -- 从文件导入数据
 load data local inpath "/root/test.csv" into table test;
