@@ -16,7 +16,7 @@ public class test_mysql {
 
             // 打开连接
             System.out.println("连接到数据库...");
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "root", "root");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/test?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", "root");
 
             // 创建查询语句
             stmt = conn.createStatement();
