@@ -8,7 +8,7 @@ categories:
 
 # **MySQL**
 
-## 配置APT源
+## 常用查询语句
 ```sql
 # 统计事件大分类
 SELECT SUBSTR(GKLX,1,4),COUNT(SUBSTR(GKLX,1,4)) AS item_count FROM `xnsdsjj_12345cbs` GROUP BY SUBSTR(GKLX,1,4) ORDER BY item_count DESC;
